@@ -1,8 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-
-#define DLL_EXPORT extern "C" __declspec(dllexport)
+#include <cdf_cpp/cdf_cpp.h>
 
 DLL_EXPORT int add_two(int a, int b) {
     //std::cout << "Hello, World!" << std::endl;

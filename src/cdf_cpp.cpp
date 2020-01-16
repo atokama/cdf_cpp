@@ -1,5 +1,9 @@
-#include <cdf-cpp/cdf-cpp.h>
+#include <cdf_cpp/cdf_cpp.h>
 
-namespace cdf-cpp {
+namespace cdf_cpp {
+
+    int stub() {
+        return 10;
+    }
 
 }
