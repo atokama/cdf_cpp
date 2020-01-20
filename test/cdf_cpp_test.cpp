@@ -33,16 +33,14 @@ namespace cdf_cpp {
         ilen *= numElements;
         auto tv = std::string{};
         tv.resize(ilen, '\0');
-        auto *time = (void *) tv.data();
-        ASSERT_NE(nullptr, time);
-        ASSERT_CDF_OK(CDFgetzVarRecordData(id, TimeVarNum, 1L, time));
+        ASSERT_CDF_OK(CDFgetzVarRecordData(id, TimeVarNum, 1L, (void*)tv.data()));
 
         long indices[2];
         indices[0] = 0;
         indices[1] = 0;
-        double TimeVarOut;
-        ASSERT_CDF_OK(CDFgetzVarData(id, TimeVarNum, 0L, indices, &TimeVarOut));
-        ASSERT_EQ(63245318400000, TimeVarOut);
+        double result;
+        ASSERT_CDF_OK(CDFgetzVarData(id, TimeVarNum, 0L, indices, &result));
+        ASSERT_EQ(63245318400000, result);
 
         ASSERT_CDF_OK(CDFclose(id));
     }
