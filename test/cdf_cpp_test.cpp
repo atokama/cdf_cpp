@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <cdf.h>
 #include <filesystem>
+#include <limits>
 
 #define ASSERT_CDF_OK(x) ASSERT_EQ(CDF_OK, x)
 
@@ -20,7 +21,7 @@ namespace cdf_cpp {
 
         long datatype;
         ASSERT_CDF_OK(CDFgetzVarDataType(id, TimeVarNum, &datatype));
-        ASSERT_EQ(45, datatype);
+        ASSERT_EQ(CDF_DOUBLE, datatype);
 
         std::size_t ilen;
         ASSERT_CDF_OK(CDFgetDataTypeSize(datatype, &ilen));
@@ -33,14 +34,21 @@ namespace cdf_cpp {
         ilen *= numElements;
         auto tv = std::string{};
         tv.resize(ilen, '\0');
-        ASSERT_CDF_OK(CDFgetzVarRecordData(id, TimeVarNum, 1L, (void*)tv.data()));
+        auto p = static_cast<void *>(const_cast<char *>(tv.data()));
+        ASSERT_CDF_OK(CDFgetzVarRecordData(id, TimeVarNum, 1L, p));
 
         long indices[2];
         indices[0] = 0;
         indices[1] = 0;
         double result;
+
+        auto cast = [](double x) { return static_cast<long long>(x); };
+
         ASSERT_CDF_OK(CDFgetzVarData(id, TimeVarNum, 0L, indices, &result));
-        ASSERT_EQ(63245318400000, result);
+        ASSERT_EQ(63245318400000, cast(result));
+
+        ASSERT_CDF_OK(CDFgetzVarData(id, TimeVarNum, 3L, indices, &result));
+        ASSERT_EQ(63245318460000LL, cast(result));
 
         ASSERT_CDF_OK(CDFclose(id));
     }
