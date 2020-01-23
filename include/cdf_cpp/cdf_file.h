@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <spdlog/spdlog.h>
 
@@ -16,6 +17,8 @@ namespace cdf_cpp {
     using std::string;
     template<typename K, typename T> using map = std::map<K, T>;
     using std::experimental::filesystem::path;
+
+    template<typename T> using vector = std::vector<T>;
 
     class CDFFile {
     public:
@@ -41,6 +44,12 @@ namespace cdf_cpp {
 
         ~CDFFile() {
             if (_id) CDFclose(_id);
+        }
+
+        vector<string> var_names() const {
+            vector<string> vars{};
+            for (const auto &pair: variables) vars.push_back(pair.first);
+            return vars;
         }
 
         map<string, Variable> variables;

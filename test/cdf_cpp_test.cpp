@@ -47,13 +47,24 @@ namespace cdf_cpp {
         return range_equal(begin1, end, begin2, end);
     }
 
-    constexpr auto file1_cdf = "D:\\Mag\\proj\\cdf-cpp\\test\\data\\03\\ATU_20040301.cdf";
-    constexpr auto file1_txt = "D:\\Mag\\proj\\cdf-cpp\\test\\data\\03\\ATU_20040301.txt";
-    constexpr auto temp_file = "ATU_20040301.txt";
+    const auto file1_cdf = "data\\03\\ATU_20040301.cdf";
+    const auto file1_txt = "data\\03\\ATU_20040301.txt";
+    const auto temp_file = "ATU_20040301.txt";
 
-    TEST(cdf_cpp_test, cpp_extractor) {
-        cpp_extractor(file1_cdf, temp_file);
-        ASSERT_TRUE(compare_files(temp_file, file1_txt));
+    TEST(cdf_cpp_test, cpp_extractor_type1) {
+        const auto cdf = "data\\03\\ATU_20040301.cdf";
+        const auto txt = "data\\03\\ATU_20040301.txt";
+        const auto temp = "ATU_20040301.txt";
+        cpp_extractor(cdf, temp);
+        ASSERT_TRUE(compare_files(temp, txt));
+    }
+
+    TEST(cdf_cpp_test, cpp_extractor_type2) {
+        const auto cdf = "data\\09\\ATU_19850910.cdf";
+        const auto txt = "data\\09\\ATU_19850910.txt";
+        const auto temp = "ATU_19850910.txt";
+        cpp_extractor(cdf, temp);
+        ASSERT_TRUE(compare_files(temp, txt));
     }
 
     TEST(cdf_cpp_test, a) {

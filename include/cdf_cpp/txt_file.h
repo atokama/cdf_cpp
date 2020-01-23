@@ -3,6 +3,10 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <iomanip>
+#include <ios>
+#include <fstream>
+#include <cmath>
 
 #include <spdlog/spdlog.h>
 
@@ -43,12 +47,24 @@ namespace cdf_cpp {
                     << "Zvar" << endl;
         }
 
+        void write_element(double element, std::streamsize precision, const string &suffix) {
+            if (std::isnan(element))
+                _output << "nan";
+            else {
+                const auto temp = _output.precision();
+                _output.precision(precision);
+                _output << std::fixed << element;
+                _output.precision(temp);
+            }
+
+            _output << suffix;
+        }
+
         void write_line(double time, double Hvar, double Evar, double Zvar) {
-            auto cast = [](double x) { return static_cast<long long>(x); };
-            _output << cast(time) << CDFCPP_SEPARATOR
-                    << cast(Hvar) << CDFCPP_SEPARATOR
-                    << cast(Evar) << CDFCPP_SEPARATOR
-                    << cast(Zvar) << endl;
+            write_element(time, 2, CDFCPP_SEPARATOR);
+            write_element(Hvar, 2, CDFCPP_SEPARATOR);
+            write_element(Evar, 2, CDFCPP_SEPARATOR);
+            write_element(Zvar, 2, "\n");
         }
 
     private:
