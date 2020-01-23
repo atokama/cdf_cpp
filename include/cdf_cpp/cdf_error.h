@@ -11,12 +11,10 @@ namespace cdf_cpp {
 
     class CDFError : std::runtime_error {
     public:
-        explicit CDFError(const string& m) : std::runtime_error{m} {}
+        explicit CDFError(const string& m);
 
-        const char *what() const noexcept { return "err"; }
+        const char *what() const noexcept;
     };
 
-    void check_status(CDFstatus status, const string &error_message) {
-        if (status != CDF_OK) throw CDFError{error_message};
-    }
+    void check_status(CDFstatus status, const string &error_message);
 }

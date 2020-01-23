@@ -1,4 +1,5 @@
 #include <cdf_cpp/cdf_cpp.h>
+#include <cdf_cpp/convertor.h>
 
 #include <algorithm>
 #include <iterator>
@@ -8,7 +9,6 @@
 #include <limits>
 #include <stdexcept>
 
-//#include <easylogging++.h>
 #include <gtest/gtest.h>
 
 #include <cdf.h>
@@ -22,7 +22,6 @@ namespace cdf_cpp {
     using std::string;
     using std::ifstream;
     using std::experimental::filesystem::path;
-
 
     template<typename InputIterator1, typename InputIterator2>
     bool range_equal(InputIterator1 first1, InputIterator1 last1,
@@ -47,15 +46,11 @@ namespace cdf_cpp {
         return range_equal(begin1, end, begin2, end);
     }
 
-    const auto file1_cdf = "data\\03\\ATU_20040301.cdf";
-    const auto file1_txt = "data\\03\\ATU_20040301.txt";
-    const auto temp_file = "ATU_20040301.txt";
-
     TEST(cdf_cpp_test, cpp_extractor_type1) {
         const auto cdf = "data\\03\\ATU_20040301.cdf";
         const auto txt = "data\\03\\ATU_20040301.txt";
         const auto temp = "ATU_20040301.txt";
-        cpp_extractor(cdf, temp);
+        Convertor::convert(cdf, temp);
         ASSERT_TRUE(compare_files(temp, txt));
     }
 
@@ -63,9 +58,13 @@ namespace cdf_cpp {
         const auto cdf = "data\\09\\ATU_19850910.cdf";
         const auto txt = "data\\09\\ATU_19850910.txt";
         const auto temp = "ATU_19850910.txt";
-        cpp_extractor(cdf, temp);
+        Convertor::convert(cdf, temp);
         ASSERT_TRUE(compare_files(temp, txt));
     }
+
+    const auto file1_cdf = "data\\03\\ATU_20040301.cdf";
+    const auto file1_txt = "data\\03\\ATU_20040301.txt";
+    const auto temp_file = "ATU_20040301.txt";
 
     TEST(cdf_cpp_test, a) {
         CDFid id;

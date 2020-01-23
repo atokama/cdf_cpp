@@ -14,14 +14,7 @@ namespace cdf_cpp {
 
     class Variable {
     public:
-        Variable(CDFid id, long varnum) : _id{id}, _varnum{varnum} {
-            _indices[0] = 0;
-            _indices[1] = 0;
-            check_status(CDFgetzVarNumRecsWritten(_id, _varnum, &num_elements), "num elements");
-            check_status(CDFgetzVarDataType(_id, _varnum, &_datatype), "data type");
-            SPDLOG_INFO("variable created: varnum={} datatype={} num_elements={}",
-                    _varnum, _datatype, num_elements);
-        }
+        Variable(CDFid id, long varnum);
 
         template<typename T>
         T element(long index) const {
@@ -33,9 +26,9 @@ namespace cdf_cpp {
 
         long num_elements;
     private:
-        long _indices[2];
         CDFid _id;
         long _varnum;
         long _datatype;
+        long _indices[2];
     };
 }

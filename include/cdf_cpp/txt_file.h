@@ -1,74 +1,37 @@
 #pragma once
 
 #include <filesystem>
+#include <iomanip>
 #include <map>
 #include <string>
-#include <iomanip>
-#include <ios>
 #include <fstream>
-#include <cmath>
-
-#include <spdlog/spdlog.h>
-
-#include <cdf_cpp/cdf_error.h>
-
-#define CDFCPP_SEPARATOR "\t"
 
 namespace cdf_cpp {
 
+    using std::string;
     using std::ofstream;
-    using std::endl;
     using std::experimental::filesystem::path;
 
     class TXTFile {
     public:
-        explicit TXTFile(const path &filename) : _filename{filename}, _output{} {
-        }
+        explicit TXTFile(const path &filename, const string &separator, std::streamsize precision);
 
-        ~TXTFile() {
-            if (_output.is_open()) close();
-            SPDLOG_INFO("txt file is closed, filename: {}", _filename.string());
-        }
+        ~TXTFile();
 
+        void open();
 
-        void open() {
-            _output.open(_filename.string(), ofstream::out);
-            SPDLOG_INFO("txt file is open, filename: {}", _filename.string());
-        }
+        void close();
 
-        void close() {
-            _output.close();
-        }
+        void write_header();
 
-        void write_header() {
-            _output << "time" << CDFCPP_SEPARATOR
-                    << "Hvar" << CDFCPP_SEPARATOR
-                    << "Evar" << CDFCPP_SEPARATOR
-                    << "Zvar" << endl;
-        }
-
-        void write_element(double element, std::streamsize precision, const string &suffix) {
-            if (std::isnan(element))
-                _output << "nan";
-            else {
-                const auto temp = _output.precision();
-                _output.precision(precision);
-                _output << std::fixed << element;
-                _output.precision(temp);
-            }
-
-            _output << suffix;
-        }
-
-        void write_line(double time, double Hvar, double Evar, double Zvar) {
-            write_element(time, 2, CDFCPP_SEPARATOR);
-            write_element(Hvar, 2, CDFCPP_SEPARATOR);
-            write_element(Evar, 2, CDFCPP_SEPARATOR);
-            write_element(Zvar, 2, "\n");
-        }
+        void write_line(double time, double Hvar, double Evar, double Zvar);
 
     private:
-        path _filename;
+        void write_element(double element, const string &suffix);
+
+        const path _filename;
+        const string _separator;
+        std::streamsize _precision;
         ofstream _output;
     };
 

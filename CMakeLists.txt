@@ -7,7 +7,8 @@ set(CMAKE_GENERATOR_PLATFORM x86)
 add_subdirectory(../cdf37_1-dist cdf371)
 add_subdirectory(../spdlog spdlog)
 
-add_library(cdf_cpp SHARED src/cdf_cpp.cpp)
+add_library(cdf_cpp SHARED src/cdf_cpp.cpp src/cdf_error.cpp src/cdf_file.cpp
+        src/txt_file.cpp src/variable.cpp src/convertor.cpp)
 target_include_directories(cdf_cpp PUBLIC include)
 target_link_libraries(cdf_cpp spdlog cdf)
 set_target_properties(cdf_cpp PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS 1)
