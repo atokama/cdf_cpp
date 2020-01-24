@@ -9,11 +9,9 @@ namespace cdf_cpp {
 
     using std::string;
 
-    class CDFError : std::runtime_error {
+    class CDFError : public std::runtime_error {
     public:
-        explicit CDFError(const string& m);
-
-        const char *what() const noexcept;
+        explicit CDFError(const string &error_message);
     };
 
     void check_status(CDFstatus status, const string &error_message);

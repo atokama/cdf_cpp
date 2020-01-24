@@ -22,6 +22,7 @@ namespace cdf_cpp {
 
     void TXTFile::open() {
         _output.open(_filename.string(), ofstream::out);
+        if (!_output.is_open()) throw CDFError{"fail to create .txt file " + _filename.string()};
         SPDLOG_INFO("txt file is open, filename: {}", _filename.string());
     }
 

@@ -21,7 +21,7 @@ namespace cdf_cpp {
         else if (is_subset(cdf.var_names(), {"time", "HEZ"}))
             extr_ptr = &extract_type3;
         else
-            throw CDFError{"is subset"};
+            throw CDFError{"file does not contain necessary variables"};
 
         txt.open();
         txt.write_header();
