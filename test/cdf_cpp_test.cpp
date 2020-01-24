@@ -62,6 +62,14 @@ namespace cdf_cpp {
         ASSERT_TRUE(compare_files(temp, txt));
     }
 
+    TEST(cdf_cpp_test, cpp_extractor_type3) {
+        const auto cdf = "data\\10\\ATU_20161001.cdf";
+        const auto txt = "data\\10\\ATU_20161001.txt";
+        const auto temp = "ATU_20161001.txt";
+        Convertor::convert(cdf, temp);
+        ASSERT_TRUE(compare_files(temp, txt));
+    }
+
     const auto file1_cdf = "data\\03\\ATU_20040301.cdf";
     const auto file1_txt = "data\\03\\ATU_20040301.txt";
     const auto temp_file = "ATU_20040301.txt";

@@ -17,10 +17,11 @@ namespace cdf_cpp {
         Variable(CDFid id, long varnum);
 
         template<typename T>
-        T element(long index) const {
-            if (index >= num_elements) throw CDFError{"index >= length"};
+        T element(long row, long column) const {
+            if (row >= num_elements) throw CDFError{"row >= num_elements"};
             T result;
-            check_status(CDFgetzVarData(_id, _varnum, index, _indices, &result), "get var data");
+            long indices[] = {column};
+            check_status(CDFgetzVarData(_id, _varnum, row, indices, &result), "get var data");
             return result;
         }
 
@@ -29,6 +30,5 @@ namespace cdf_cpp {
         CDFid _id;
         long _varnum;
         long _datatype;
-        long _indices[2];
     };
 }

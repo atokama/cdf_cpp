@@ -4,7 +4,7 @@
 using namespace cdf_cpp;
 
 char *make_error_message(const std::string &text) {
-    char *ret = (char*)malloc(sizeof(char) * text.size());
+    char *ret = (char *) malloc(sizeof(char) * text.size());
     strcpy(ret, text.c_str());
     return ret;
 }

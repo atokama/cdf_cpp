@@ -22,6 +22,8 @@ namespace cdf_cpp {
 
         static void extract_type2(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
 
+        static void extract_type3(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
+
         static bool is_subset(const vector<string> &first, const vector<string> &second);
 
         static string to_string(const vector<string> &v);
