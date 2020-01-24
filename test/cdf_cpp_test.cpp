@@ -17,11 +17,13 @@
 
 namespace cdf_cpp {
 
+    namespace fs = std::experimental::filesystem;
+
     using std::cout;
     using std::endl;
     using std::string;
     using std::ifstream;
-    using std::experimental::filesystem::path;
+    using fs::path;
 
     template<typename InputIterator1, typename InputIterator2>
     bool range_equal(InputIterator1 first1, InputIterator1 last1,
@@ -70,19 +72,23 @@ namespace cdf_cpp {
         ASSERT_TRUE(compare_files(temp, txt));
     }
 
-    namespace fs = std::experimental::filesystem;
-
-    TEST(cdf_cpp_test, type1_all_files) {
-        const path data_dir{"data\\03"}, output_dir{"1\\03"};
-        fs::create_directories(output_dir);
-        for (auto &entry : fs::directory_iterator{data_dir})
-            if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
-                auto txt = entry.path();
-                txt.replace_extension(".txt");
-                const auto temp = output_dir / txt.filename();
-                ASSERT_NO_THROW(Convertor::convert(entry.path(), temp));
-                ASSERT_TRUE(compare_files(temp.string(), txt.string()));
+    TEST(cdf_cpp_test, DISABLED_all_files) {
+        const path data_dir{"data"},
+                temp_dir{"temp"};
+        for (auto &subdir : fs::directory_iterator{data_dir})
+            if (fs::is_directory(subdir)) {
+                const auto output_dir = temp_dir / subdir.path().filename();
+                fs::create_directories(output_dir);
+                for (auto &entry : fs::directory_iterator{subdir.path()})
+                    if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
+                        auto txt = entry.path();
+                        txt.replace_extension(".txt");
+                        const auto temp = output_dir / txt.filename();
+                        ASSERT_NO_THROW(Convertor::convert(entry.path(), temp));
+                        ASSERT_TRUE(compare_files(temp.string(), txt.string()));
+                    }
             }
+
 
     }
 
