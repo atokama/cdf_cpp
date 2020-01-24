@@ -7,7 +7,7 @@
 
 namespace cdf_cpp {
 
-    void cdf_cpp::Convertor::convert(const path &source, const path &dest) {
+    void Convertor::convert(const path &source, const path &dest) {
         CDFFile cdf{source};
         TXTFile txt{dest, "\t", 2};
         std::function<
@@ -29,7 +29,7 @@ namespace cdf_cpp {
         txt.close();
     }
 
-    void cdf_cpp::Convertor::extract_type1(const map <string, Variable> &vars, long num_elements, TXTFile &txt) {
+    void Convertor::extract_type1(const map <string, Variable> &vars, long num_elements, TXTFile &txt) {
         for (auto i = 0L; i != num_elements; i += 3)
             txt.write_line(vars.at("time").element<double>(i),
                            vars.at("Hvar20sec").element<double>(i),
@@ -37,7 +37,7 @@ namespace cdf_cpp {
                            vars.at("Zvar20sec").element<double>(i));
     }
 
-    void cdf_cpp::Convertor::extract_type2(const map <string, Variable> &vars, long num_elements, TXTFile &txt) {
+    void Convertor::extract_type2(const map <string, Variable> &vars, long num_elements, TXTFile &txt) {
         for (auto i = 0L; i != num_elements; i += 1)
             txt.write_line(vars.at("time").element<double>(i),
                            vars.at("Hvar1min").element<double>(i),
@@ -45,14 +45,14 @@ namespace cdf_cpp {
                            vars.at("Zvar1min").element<double>(i));
     }
 
-    bool cdf_cpp::Convertor::is_subset(const vector <string> &first, const vector <string> &second) {
+    bool Convertor::is_subset(const vector <string> &first, const vector <string> &second) {
         for (const auto &s: second)
             if (first.cend() == std::find(first.cbegin(), first.cend(), s))
                 return false;
         return true;
     }
 
-    string cdf_cpp::Convertor::to_string(const vector <string> &v) {
+    string Convertor::to_string(const vector <string> &v) {
         std::stringstream ss{};
         for (const auto &item : v)
             ss << item << " ";
