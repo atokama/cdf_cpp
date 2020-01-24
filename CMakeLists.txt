@@ -12,6 +12,7 @@ add_library(cdf_cpp SHARED src/cdf_cpp.cpp src/cdf_error.cpp src/cdf_file.cpp
 target_include_directories(cdf_cpp PUBLIC include)
 target_link_libraries(cdf_cpp spdlog cdf)
 set_target_properties(cdf_cpp PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS 1)
+target_compile_definitions(cdf_cpp PUBLIC SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_OFF)
 
 find_package(Threads REQUIRED)
 add_subdirectory(../googletest googletest)
@@ -19,4 +20,3 @@ add_subdirectory(../googletest googletest)
 file(COPY test/data DESTINATION .)
 add_executable(cdf_cpp_test test/gtest_main.cpp test/cdf_cpp_test.cpp)
 target_link_libraries(cdf_cpp_test cdf_cpp ${CMAKE_THREAD_LIBS_INIT} gtest)
-target_compile_definitions(cdf_cpp_test PUBLIC SPDLOG_ACTIVE_LEVEL DEBUG)

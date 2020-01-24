@@ -70,69 +70,20 @@ namespace cdf_cpp {
         ASSERT_TRUE(compare_files(temp, txt));
     }
 
-    const auto file1_cdf = "data\\03\\ATU_20040301.cdf";
-    const auto file1_txt = "data\\03\\ATU_20040301.txt";
-    const auto temp_file = "ATU_20040301.txt";
+    namespace fs = std::experimental::filesystem;
 
-    TEST(cdf_cpp_test, a) {
-        CDFid id;
-        ASSERT_CDF_OK(CDFopenCDF(file1_cdf, &id));
-        ASSERT_NE(nullptr, id);
+    TEST(cdf_cpp_test, type1_all_files) {
+        const path data_dir{"data\\03"}, output_dir{"1\\03"};
+        fs::create_directories(output_dir);
+        for (auto &entry : fs::directory_iterator{data_dir})
+            if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
+                auto txt = entry.path();
+                txt.replace_extension(".txt");
+                const auto temp = output_dir / txt.filename();
+                ASSERT_NO_THROW(Convertor::convert(entry.path(), temp));
+                ASSERT_TRUE(compare_files(temp.string(), txt.string()));
+            }
 
-        long TimeVarNum = CDFgetVarNum(id, "time");
-        ASSERT_GE(TimeVarNum, CDF_WARN);
-
-        long datatype;
-        ASSERT_CDF_OK(CDFgetzVarDataType(id, TimeVarNum, &datatype));
-        ASSERT_EQ(CDF_DOUBLE, datatype);
-
-        std::size_t ilen;
-        ASSERT_CDF_OK(CDFgetDataTypeSize(datatype, &ilen));
-        ASSERT_EQ(8, ilen);
-
-        long numElements;
-        ASSERT_CDF_OK(CDFgetzVarNumRecsWritten(id, TimeVarNum, &numElements));
-        ASSERT_EQ(4320, numElements);
-
-        ilen *= numElements;
-        auto tv = string{};
-        tv.resize(ilen, '\0');
-        auto p = static_cast<void *>(const_cast<char *>(tv.data()));
-        ASSERT_CDF_OK(CDFgetzVarRecordData(id, TimeVarNum, 1L, p));
-
-        long indices[2];
-        indices[0] = 0;
-        indices[1] = 0;
-        double result;
-
-        auto cast = [](double x) { return static_cast<long long>(x); };
-
-        ASSERT_CDF_OK(CDFgetzVarData(id, TimeVarNum, 0L, indices, &result));
-        ASSERT_EQ(63245318400000, cast(result));
-
-        ASSERT_CDF_OK(CDFgetzVarData(id, TimeVarNum, 3L, indices, &result));
-        ASSERT_EQ(63245318460000LL, cast(result));
-
-        // out of range
-        ASSERT_EQ(1001, CDFgetzVarData(id, TimeVarNum, numElements, indices, &result));
-
-        ASSERT_CDF_OK(CDFclose(id));
-    }
-
-    TEST(cdf_cpp_test, b) {
-        CDFid id;
-        ASSERT_CDF_OK(CDFopenCDF(file1_cdf, &id));
-        ASSERT_NE(nullptr, id);
-
-        long numzVars;
-        ASSERT_CDF_OK(CDFgetNumzVars(id, &numzVars));
-        ASSERT_EQ(16, numzVars);
-
-        char buff[256];
-        for (long index = 0L; index != numzVars; ++index) {
-            ASSERT_CDF_OK(CDFgetzVarName(id, index, buff));
-            cout << buff << endl;
-        }
     }
 
 }
