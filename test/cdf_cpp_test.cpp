@@ -1,4 +1,3 @@
-#include <cdf_cpp/cdf_cpp.h>
 #include <cdf_cpp/convertor.h>
 
 #include <algorithm>
@@ -7,13 +6,9 @@
 #include <fstream>
 #include <filesystem>
 #include <limits>
-#include <stdexcept>
 
-#include <gtest/gtest.h>
-
-#include <cdf.h>
-
-#define ASSERT_CDF_OK(x) ASSERT_EQ(CDF_OK, x)
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 
 namespace cdf_cpp {
 
@@ -48,47 +43,52 @@ namespace cdf_cpp {
         return range_equal(begin1, end, begin2, end);
     }
 
-    TEST(cdf_cpp_test, cpp_extractor_type1) {
+    TEST_CASE("cdf_cpp_test", "cpp_extractor_type1") {
         const auto cdf = "data\\03\\ATU_20040301.cdf";
         const auto txt = "data\\03\\ATU_20040301.txt";
         const auto temp = "ATU_20040301.txt";
         Convertor::convert(cdf, temp);
-        ASSERT_TRUE(compare_files(temp, txt));
+        REQUIRE(compare_files(temp, txt));
     }
 
-    TEST(cdf_cpp_test, cpp_extractor_type2) {
+    TEST_CASE("cdf_cpp_test", "cpp_extractor_type2") {
         const auto cdf = "data\\09\\ATU_19850910.cdf";
         const auto txt = "data\\09\\ATU_19850910.txt";
         const auto temp = "ATU_19850910.txt";
         Convertor::convert(cdf, temp);
-        ASSERT_TRUE(compare_files(temp, txt));
+        REQUIRE(compare_files(temp, txt));
     }
 
-    TEST(cdf_cpp_test, cpp_extractor_type3) {
+    TEST_CASE("cdf_cpp_test", "cpp_extractor_type3") {
         const auto cdf = "data\\10\\ATU_20161001.cdf";
         const auto txt = "data\\10\\ATU_20161001.txt";
         const auto temp = "ATU_20161001.txt";
         Convertor::convert(cdf, temp);
-        ASSERT_TRUE(compare_files(temp, txt));
+        REQUIRE(compare_files(temp, txt));
     }
 
-    TEST(cdf_cpp_test, DISABLED_all_files) {
-        const path data_dir{"data"},
-                temp_dir{"temp"};
+	
+    TEST_CASE("cdf_cpp_test", "all_files") {
+        const path data_dir{"data"}, temp_dir{"temp"};
+
+				// for each subdir in data_dir
         for (auto &subdir : fs::directory_iterator{data_dir})
             if (fs::is_directory(subdir)) {
                 const auto output_dir = temp_dir / subdir.path().filename();
                 fs::create_directories(output_dir);
+
+								// for each file in subdir
                 for (auto &entry : fs::directory_iterator{subdir.path()})
                     if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
                         auto txt = entry.path();
                         txt.replace_extension(".txt");
                         const auto temp = output_dir / txt.filename();
-                        ASSERT_NO_THROW(Convertor::convert(entry.path(), temp));
-                        ASSERT_TRUE(compare_files(temp.string(), txt.string()));
+
+												// convert to txt file
+                        Convertor::convert(entry.path(), temp);
+                        REQUIRE(compare_files(temp.string(), txt.string()));
                     }
             }
-
 
     }
 
