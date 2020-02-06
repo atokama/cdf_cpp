@@ -2,10 +2,7 @@
 
 #include <string>
 
-#include <spdlog/spdlog.h>
-
 #include <cdf.h>
-
 #include <cdf_cpp/cdf_error.h>
 
 namespace cdf_cpp {

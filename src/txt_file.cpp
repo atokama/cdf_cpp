@@ -3,8 +3,6 @@
 #include <cmath>
 #include <ios>
 
-#include <spdlog/spdlog.h>
-
 #include <cdf_cpp/cdf_error.h>
 
 namespace cdf_cpp {
@@ -17,13 +15,11 @@ namespace cdf_cpp {
 
     TXTFile::~TXTFile() {
         if (_output.is_open()) close();
-        SPDLOG_INFO("txt file is closed, filename: {}", _filename.string());
     }
 
     void TXTFile::open() {
         _output.open(_filename.string(), ofstream::out);
         if (!_output.is_open()) throw CDFError{"fail to create .txt file " + _filename.string()};
-        SPDLOG_INFO("txt file is open, filename: {}", _filename.string());
     }
 
     void TXTFile::close() {

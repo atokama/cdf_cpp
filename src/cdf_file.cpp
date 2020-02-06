@@ -1,7 +1,5 @@
 #include <cdf_cpp/cdf_file.h>
 
-#include <spdlog/spdlog.h>
-
 namespace cdf_cpp {
 
     CDFFile::CDFFile(const path &filename) : _id{nullptr} {
@@ -10,7 +8,6 @@ namespace cdf_cpp {
         long numzVars;
         check_status(CDFgetNumzVars(_id, &numzVars), "fail to get number of zVariables");
 
-        SPDLOG_INFO("num zVars: {}", numzVars);
         for (long i = 0L; i != numzVars; ++i) {
             char var_name[CDF_VAR_NAME_LEN256 + 1];
             check_status(CDFgetzVarName(_id, i, var_name), "fail to get name of zVariable");
@@ -21,7 +18,6 @@ namespace cdf_cpp {
             string n{var_name};
             auto it = variables.insert({n, Variable{_id, var_num}});
             if (!it.second) throw CDFError{"fail to insert variable"};
-            SPDLOG_INFO("inserted var: {} varnum: {} total vars: {}", n, var_num, variables.size());
         };
     }
 

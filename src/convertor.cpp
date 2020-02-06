@@ -3,8 +3,6 @@
 #include <functional>
 #include <sstream>
 
-#include <spdlog/spdlog.h>
-
 namespace cdf_cpp {
 
     void Convertor::convert(const path &source, const path &dest) {

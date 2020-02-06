@@ -8,7 +8,5 @@ namespace cdf_cpp {
                      "fail to get number of variable elements");
         check_status(CDFgetzVarDataType(_id, _varnum, &_datatype),
                      "fail to get datatype of variable");
-        SPDLOG_INFO("variable created: varnum={} datatype={} num_elements={}",
-                    _varnum, _datatype, num_elements);
     }
 }

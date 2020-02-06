@@ -17,7 +17,7 @@ namespace cdf_cpp {
     public:
         static void convert(const path &source, const path &dest);
 
-    private:
+//    private:
         static void extract_type1(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
 
         static void extract_type2(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
