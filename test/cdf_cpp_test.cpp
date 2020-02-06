@@ -2,6 +2,7 @@
 #include <cdf_cpp/cdf_cpp.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <iterator>
 #include <string>
 #include <fstream>
@@ -55,6 +56,7 @@ namespace cdf_cpp {
     bool nasa_tester(int len,
                      const char *cdf, const char *txt, const char *temp) {
         char error_message[NASA_ERROR_SIZE];
+        error_message[0] = '\0';
         std::vector<double> t(len), hx(len), hy(len), hz(len);
         nasa(error_message, cdf, len, t.data(), hx.data(), hy.data(), hz.data());
         save_txt_file(temp, len, t.data(), hx.data(), hy.data(), hz.data());
@@ -80,6 +82,41 @@ namespace cdf_cpp {
         const auto txt = "data\\09\\ATU_19850910.txt";
         const auto temp = "ATU_19850910.txt";
         REQUIRE(nasa_tester(NASA_M_NUM, cdf, txt, temp));
+    }
+
+    std::vector<double> get_time_var(
+            const char* cdf_filename, int length) {
+        char error_message[NASA_ERROR_SIZE];
+        error_message[0] = '\0';
+        std::vector<double> t(length), hx(length), hy(length), hz(length);
+
+        nasa_s(error_message, cdf_filename, t.data(), hx.data(), hy.data(), hz.data());
+        return t;
+    }
+
+    TEST_CASE("epoch_time") {
+        const auto cdf_s = "data\\10\\ATU_20161001.cdf";
+        auto t = get_time_var(cdf_s, NASA_S_NUM);
+
+        char epoch[1024];
+        epoch[0] = '\0';
+
+        toEncodeEPOCH(t[0], 0, epoch);
+        REQUIRE("01-Oct-2016 00:00:00.000" ==  string{epoch});
+        toEncodeEPOCH(t[0], 1, epoch);
+        REQUIRE("20161001.0000000" ==  string{epoch});
+        toEncodeEPOCH(t[0], 2, epoch);
+        REQUIRE("20161001000000" ==  string{epoch});
+        toEncodeEPOCH(t[0], 3, epoch);
+        REQUIRE("2016-10-01T00:00:00.000Z" ==  string{epoch});
+        toEncodeEPOCH(t[0], 4, epoch);
+        REQUIRE("2016-10-01T00:00:00.000" ==  string{epoch});
+
+        SECTION("unixtime") {
+            double unix;
+            EPOCHtoUnixTime(t.data() + 100, &unix, 1);
+            REQUIRE(1475280100. == unix);
+        }
     }
 
     string nasa_error_tester(int len, const char *cdf) {
