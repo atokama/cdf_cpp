@@ -44,7 +44,150 @@ namespace cdf_cpp {
         return range_equal(begin1, end, begin2, end);
     }
 
-    TEST_CASE("CDF datetime", "[cdf_cpp_test]") {
+    void save_txt_file(const path &filename, int length,
+                       double *t, double *hx, double *hy, double *hz) {
+        TXTFile txt{filename, "\t", 2};
+        txt.write_header();
+        for (int i = 0; i != length; ++i)
+            txt.write_line(*t++, *hx++, *hy++, *hz++);
+    }
+
+    bool nasa_tester(int len,
+                     const char *cdf, const char *txt, const char *temp) {
+        char error_message[NASA_ERROR_SIZE];
+        std::vector<double> t(len), hx(len), hy(len), hz(len);
+        nasa(error_message, cdf, len, t.data(), hx.data(), hy.data(), hz.data());
+        save_txt_file(temp, len, t.data(), hx.data(), hy.data(), hz.data());
+        return compare_files(temp, txt);
+    }
+
+    TEST_CASE("nasa_s", "[cdf_cpp_test]") {
+        const auto cdf = "data\\10\\ATU_20161001.cdf";
+        const auto txt = "data\\10\\ATU_20161001.txt";
+        const auto temp = "ATU_20161001.txt";
+        REQUIRE(nasa_tester(NASA_S_NUM, cdf, txt, temp));
+    }
+
+    TEST_CASE("nasa_20s", "[cdf_cpp_test]") {
+        const auto cdf = "data\\03\\ATU_20040301.cdf";
+        const auto txt = "data\\03\\ATU_20040301.txt";
+        const auto temp = "ATU_20040301.txt";
+        REQUIRE(nasa_tester(NASA_20S_NUM, cdf, txt, temp));
+    }
+
+    TEST_CASE("nasa_m", "[cdf_cpp_test]") {
+        const auto cdf = "data\\09\\ATU_19850910.cdf";
+        const auto txt = "data\\09\\ATU_19850910.txt";
+        const auto temp = "ATU_19850910.txt";
+        REQUIRE(nasa_tester(NASA_M_NUM, cdf, txt, temp));
+    }
+
+    string nasa_error_tester(int len, const char *cdf) {
+        auto error_message = new char[NASA_ERROR_SIZE];
+        error_message[0] = '\0';
+        std::vector<double> t(len), hx(len), hy(len), hz(len);
+        nasa(error_message, cdf, len,
+             t.data(), hx.data(), hy.data(), hz.data());
+         string ret{error_message};
+         delete [] error_message;
+         return ret;
+    }
+
+    TEST_CASE("nasa_mix_errors", "[cdf_cpp_test]") {
+        const auto cdf_s = "data\\10\\ATU_20161001.cdf";
+        const auto cdf_20s = "data\\03\\ATU_20040301.cdf";
+        const auto cdf_m = "data\\09\\ATU_19850910.cdf";
+
+        // no error: nasa_s called with s file
+        REQUIRE("" ==
+                nasa_error_tester(NASA_S_NUM, cdf_s));
+
+        // nasa_s called with 20s file
+        REQUIRE("Unexpected cdf file: Length=4320 Variables=[ DT "
+                "Evar20sec FB FS HEqla HEscv HNqla HNscv Hvar20sec "
+                "IN SD T20sec Zqla Zscv Zvar20sec time ]" ==
+                nasa_error_tester(NASA_S_NUM, cdf_20s));
+
+        // nasa_s called with m file
+        REQUIRE("Unexpected cdf file: Length=1440 Variables=[ Evar1min "
+                "HEqla HNqla Hvar1min Zqla Zvar1min time ]" ==
+                nasa_error_tester(NASA_S_NUM, cdf_m));
+
+        // nasa_20s called with s file
+        REQUIRE("Unexpected cdf file: Length=86400 Variables=[ HEZ time ]" ==
+                nasa_error_tester(NASA_20S_NUM, cdf_s));
+
+        // nasa_20s called with 20s file
+        REQUIRE("" ==
+                nasa_error_tester(NASA_20S_NUM, cdf_20s));
+
+        // nasa_20s called with m file
+        REQUIRE("Unexpected cdf file: Length=1440 Variables=[ Evar1min "
+                "HEqla HNqla Hvar1min Zqla Zvar1min time ]" ==
+                nasa_error_tester(NASA_20S_NUM, cdf_m));
+
+        // nasa_m called with s file
+        REQUIRE("Unexpected cdf file: Length=86400 Variables=[ HEZ time ]" ==
+                nasa_error_tester(NASA_M_NUM, cdf_s));
+
+        // nasa_m called with 20s file
+        REQUIRE("Unexpected cdf file: Length=4320 Variables=[ DT Evar20sec "
+                "FB FS HEqla HEscv HNqla HNscv Hvar20sec IN SD T20sec Zqla "
+                "Zscv Zvar20sec time ]" ==
+                nasa_error_tester(NASA_M_NUM, cdf_20s));
+
+        // nasa_m called with m file
+        REQUIRE("" ==
+                nasa_error_tester(NASA_M_NUM, cdf_m));
+    }
+
+    TEST_CASE("not_a_nasa_file", "[cdf_cpp_test]") {
+        auto cdf = "data\\example1.cdf";
+        REQUIRE("Unexpected cdf file: Variables=[ Image Latitude Time ]" ==
+                nasa_error_tester(NASA_S_NUM, cdf));
+    }
+
+    TEST_CASE("bad_file_extension", "[cdf_cpp_test]") {
+        auto cdf = "data\\example.dat";
+        REQUIRE("fail to open CDF file" ==
+                nasa_error_tester(NASA_S_NUM, cdf));
+    }
+
+    TEST_CASE("file_not_found", "[cdf_cpp_test]") {
+        auto cdf = "file_not_exist";
+        REQUIRE("fail to open CDF file" ==
+                nasa_error_tester(NASA_S_NUM, cdf));
+    }
+
+    /*
+    TEST_CASE("all_files", "[cdf_cpp_test]") {
+        const path data_dir{"data"}, temp_dir{"temp"};
+
+                // for each subdir in data_dir
+        for (auto &subdir : fs::directory_iterator{data_dir})
+            if (fs::is_directory(subdir)) {
+                const auto output_dir = temp_dir / subdir.path().filename();
+                fs::create_directories(output_dir);
+
+                                // for each file in subdir
+                for (auto &entry : fs::directory_iterator{subdir.path()})
+                    if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
+                        auto txt = entry.path();
+                        txt.replace_extension(".txt");
+                        const auto temp = output_dir / txt.filename();
+
+                                                // convert to txt file
+                        Convertor::convert(entry.path(), temp);
+                        REQUIRE(compare_files(temp.string(), txt.string()));
+                    }
+            }
+
+    }
+    */
+
+
+    /*
+    TEST_CASE("Test arrays", "[cdf_cpp_test]") {
         int i;
         double *pd2 = test_array_2(&i);
         REQUIRE(i == 100);
@@ -57,56 +200,6 @@ namespace cdf_cpp {
         double *pd3 = new double[100];
         test_array_3(pd3, 100);
         delete[] pd3;
-	}
-
-    TEST_CASE("cpp_extractor_type1", "[cdf_cpp_test]") {
-        const auto cdf = "data\\03\\ATU_20040301.cdf";
-        const auto txt = "data\\03\\ATU_20040301.txt";
-        const auto temp = "ATU_20040301.txt";
-        Convertor::convert(cdf, temp);
-        REQUIRE(compare_files(temp, txt));
     }
-
-    TEST_CASE("cpp_extractor_type2", "[cdf_cpp_test]") {
-        const auto cdf = "data\\09\\ATU_19850910.cdf";
-        const auto txt = "data\\09\\ATU_19850910.txt";
-        const auto temp = "ATU_19850910.txt";
-        Convertor::convert(cdf, temp);
-        REQUIRE(compare_files(temp, txt));
-    }
-
-    TEST_CASE("cpp_extractor_type3", "[cdf_cpp_test]") {
-        const auto cdf = "data\\10\\ATU_20161001.cdf";
-        const auto txt = "data\\10\\ATU_20161001.txt";
-        const auto temp = "ATU_20161001.txt";
-        Convertor::convert(cdf, temp);
-        REQUIRE(compare_files(temp, txt));
-    }
-
-	/*
-    TEST_CASE("all_files", "[cdf_cpp_test]") {
-        const path data_dir{"data"}, temp_dir{"temp"};
-
-				// for each subdir in data_dir
-        for (auto &subdir : fs::directory_iterator{data_dir})
-            if (fs::is_directory(subdir)) {
-                const auto output_dir = temp_dir / subdir.path().filename();
-                fs::create_directories(output_dir);
-
-								// for each file in subdir
-                for (auto &entry : fs::directory_iterator{subdir.path()})
-                    if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
-                        auto txt = entry.path();
-                        txt.replace_extension(".txt");
-                        const auto temp = output_dir / txt.filename();
-
-												// convert to txt file
-                        Convertor::convert(entry.path(), temp);
-                        REQUIRE(compare_files(temp.string(), txt.string()));
-                    }
-            }
-
-    }
-	*/
-
+    */
 }

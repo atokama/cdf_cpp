@@ -21,43 +21,44 @@ const char *convertor(const char *source, const char *dest) try {
     return make_error_message({"Unknown error"});
 }
 
-bool nasa_check(CDFFile& cdf, vector<string> vars, int secs) {
+bool nasa_check(CDFFile& cdf, vector<string> vars, int nasa_secs) {
  return Convertor::is_subset(cdf.var_names(), vars)
          && cdf.variables.count("time") == 1
-         && cdf.variables.at("time").num_elements == secs;
+         && cdf.variables.at("time").num_elements == nasa_secs;
 }
 
-int nasa(char *error_message, const char *cdf_filename, int length,
+int nasa(char *error_message, const char *cdf_filename, int nasa_secs,
          double *t, double *hx, double *hy, double *hz) try {
     CDFFile cdf{cdf_filename};
-    if (nasa_check(cdf, {"time", "HEZ"}, length)) {
-        for (auto i = 0L; i != length; i += 1) {
+    if (nasa_check(cdf, {"time", "HEZ"}, nasa_secs)) {
+        for (auto i = 0L; i != nasa_secs; i += 1) {
             t[i] = cdf.variables.at("time").element<double>(i, 0);
             hx[i] = cdf.variables.at("HEZ").element<double>(i, 0);
             hy[i] = cdf.variables.at("HEZ").element<double>(i, 1);
             hz[i] = cdf.variables.at("HEZ").element<double>(i, 2);
         }
-    } else if (nasa_check(cdf, {"time", "Hvar20sec", "Evar20sec", "Zvar20sec"}, 24*60*3))
-        for (auto i = 0L; i != length; i += 1) {
+    } else if (nasa_check(cdf, {"time", "Hvar20sec", "Evar20sec", "Zvar20sec"}, nasa_secs))
+        for (auto i = 0L; i != nasa_secs; i += 1) {
             t[i] = cdf.variables.at("time").element<double>(i, 0);
             hx[i] = cdf.variables.at("Hvar20sec").element<double>(i, 0);
             hy[i] = cdf.variables.at("Evar20sec").element<double>(i, 0);
             hz[i] = cdf.variables.at("Zvar20sec").element<double>(i, 0);
         }
-    else if (nasa_check(cdf, {"time", "Hvar1min", "Evar1min", "Zvar1min"}, 24*60*1))
-        for (auto i = 0L; i != length; i += 1) {
+    else if (nasa_check(cdf, {"time", "Hvar1min", "Evar1min", "Zvar1min"}, nasa_secs))
+        for (auto i = 0L; i != nasa_secs; i += 1) {
             t[i] = cdf.variables.at("time").element<double>(i, 0);
             hx[i] = cdf.variables.at("Hvar1min").element<double>(i, 0);
             hy[i] = cdf.variables.at("Evar1min").element<double>(i, 0);
             hz[i] = cdf.variables.at("Zvar1min").element<double>(i, 0);
         }
     else {
-        string err{ "Unexpected nasa. "};
+        string err{ "Unexpected cdf file: "};
         if (cdf.variables.count("time"))
-            err += "Seconds: " + std::to_string(
+            err += "Length=" + std::to_string(
                         cdf.variables.at("time").num_elements) + " ";
-        err += "Variables: " + Convertor::to_string(cdf.var_names());
-        throw CDFError{err};
+        err += "Variables=[ " + Convertor::to_string(cdf.var_names()) + "]";
+        strcpy(error_message, err.c_str());
+        return 1;
     }
     return 0;
 } catch (const CDFError &e) {

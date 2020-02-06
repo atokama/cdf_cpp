@@ -16,22 +16,27 @@ int nasa(char *error_message, const char *cdf_filename, int length,
 
 /* Новый интерфейс */
 
+#define NASA_ERROR_SIZE 1024
+#define NASA_S_NUM (24 * 60 * 60)
+#define NASA_20S_NUM (24 * 60 * 3)
+#define NASA_M_NUM (24 * 60 * 1)
+
 DLL_EXPORT int nasa_s(
         char *error_message,const char *cdf_filename,
         double *t, double *hx, double *hy, double *hz) {
-    return nasa(error_message, cdf_filename, 24*60*60, t, hx, hy, hz);
+    return nasa(error_message, cdf_filename, NASA_S_NUM, t, hx, hy, hz);
 }
 
 DLL_EXPORT int nasa_20s(
         char *error_message,const char *cdf_filename,
         double *t, double *hx, double *hy, double *hz) {
-    return nasa(error_message,cdf_filename,  24*60*3, t, hx, hy, hz);
+    return nasa(error_message,cdf_filename,  NASA_20S_NUM, t, hx, hy, hz);
 }
 
 DLL_EXPORT int nasa_m(
         char *error_message,const char *cdf_filename,
         double *t, double *hx, double *hy, double *hz) {
-    return nasa(error_message, cdf_filename, 24*60*1, t, hx, hy, hz);
+    return nasa(error_message, cdf_filename, NASA_M_NUM, t, hx, hy, hz);
 }
 
 /* Тестовые */
