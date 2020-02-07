@@ -15,10 +15,12 @@ namespace cdf_cpp {
             long var_num = CDFgetVarNum(_id, var_name);
             if (var_num < CDF_WARN) throw CDFError{"fail to get variable number"};
 
-            string n{var_name};
-            auto it = variables.insert({n, Variable{_id, var_num}});
-            if (!it.second) throw CDFError{"fail to insert variable"};
-        };
+            auto it = variables.insert(
+                {string{var_name},
+                 std::make_shared<Variable>(_id, var_num)});
+            if (!it.second)
+                throw CDFError{"fail to insert variable"};
+        }
     }
 
     CDFFile::~CDFFile() {

@@ -6,9 +6,11 @@
  * назначения.
  * @ret NULL в случае успеха, иначе - описание ошибки.
  */
+/*
 DLL_EXPORT
 const char *
 convertor(const char *source, const char *dest);
+*/
 
 
 int nasa(char *error_message, const char *cdf_filename, int length,

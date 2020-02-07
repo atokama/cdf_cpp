@@ -15,18 +15,23 @@ namespace cdf_cpp {
 
     class Convertor {
     public:
-        static void convert(const path &source, const path &dest);
-
-//    private:
-        static void extract_type1(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
-
-        static void extract_type2(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
-
-        static void extract_type3(const map<string, Variable> &vars, long num_elements, TXTFile &txt);
-
-        static bool is_subset(const vector<string> &first, const vector<string> &second);
+        static bool is_subset(
+                const vector<string> &first,
+                const vector<string> &second);
 
         static string to_string(const vector<string> &v);
+
+        /*
+        static void convert(const path &source, const path &dest);
+
+    private:
+        static void extract_type1(const map<string, sh_ptr<Variable>> &vars, long num_elements, TXTFile &txt);
+
+        static void extract_type2(const map<string, sh_ptr<Variable>> &vars, long num_elements, TXTFile &txt);
+
+        static void extract_type3(const map<string, sh_ptr<Variable>> &vars, long num_elements, TXTFile &txt);
+
+        */
 
     };
 

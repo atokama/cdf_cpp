@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <cdf_cpp/variable.h>
 
@@ -15,6 +16,7 @@ namespace cdf_cpp {
     using std::experimental::filesystem::path;
     template<typename T> using vector = std::vector<T>;
     template<typename K, typename T> using map = std::map<K, T>;
+    template <typename T> using sh_ptr = std::shared_ptr<T>;
 
     class CDFFile {
     public:
@@ -24,9 +26,8 @@ namespace cdf_cpp {
 
         vector<string> var_names() const;
 
-        map<string, Variable> variables;
+        map<string, sh_ptr<Variable>> variables;
 
-    private:
         CDFid _id;
     };
 
