@@ -128,7 +128,13 @@ namespace cdf_cpp {
         char error_message[NASA_ERROR_SIZE];
         error_message[0] = '\0';
         std::vector<double> t(len), hx(len), hy(len), hz(len);
+        // nasa is fast
         nasa(error_message, cdf, len, t.data(), hx.data(), hy.data(), hz.data());
+        // Для теста результат сохраняется в текстовый файл и сравнивается
+        // с реферрентным файлом. Так сложилось исторически. Быстрее будет
+        // читать реферрентный файл и сравнивать значения в памяти. Важно
+        // учесть потерю точности при десериализации double.
+        // 2 slow functions:
         save_txt_file(temp, len, t.data(), hx.data(), hy.data(), hz.data());
         return compare_files(temp, txt);
     }
