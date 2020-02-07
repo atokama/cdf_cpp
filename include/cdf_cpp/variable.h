@@ -1,15 +1,8 @@
 #pragma once
-
-#include <string>
-#include <vector>
-
 #include <cdf.h>
 #include <cdf_cpp/cdf_error.h>
 
 namespace cdf_cpp {
-
-    using std::string;
-    template <typename T> using vector = std::vector<T>;
 
     class Variable {
     public:

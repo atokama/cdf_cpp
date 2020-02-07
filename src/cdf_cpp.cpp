@@ -1,7 +1,32 @@
 #include <cdf_cpp/cdf_cpp.h>
-#include <cdf_cpp/convertor.h>
+#include <cdf_cpp/cdf_file.h>
+
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <map>
+#include <vector>
 
 using namespace cdf_cpp;
+
+
+bool is_subset(
+        const vector<string> &first,
+        const vector<string> &second) {
+    for (const auto &s: second)
+        if (first.cend() ==
+                std::find(first.cbegin(), first.cend(), s))
+            return false;
+    return true;
+}
+
+string to_string(const vector<string> &v) {
+    std::stringstream ss{};
+    for (const auto &item : v)
+        ss << item << " ";
+    return ss.str();
+}
 
 int nasa(char *error_message, const char *cdf_filename, int length,
         double *t, double *hx, double *hy, double *hz);
@@ -26,7 +51,7 @@ int nasa_m(
 
 
 bool nasa_check(CDFFile& cdf, vector<string> vars, int nasa_secs) {
- return Convertor::is_subset(cdf.var_names(), vars)
+ return is_subset(cdf.var_names(), vars)
          && cdf.variables.count("time") == 1
          && cdf.variables.at("time")->num_elements == nasa_secs;
 }
@@ -70,7 +95,7 @@ int nasa(char *error_message, const char *cdf_filename, int nasa_secs,
         if (cdf.variables.count("time"))
             err += "Length=" + std::to_string(
                         cdf.variables.at("time")->num_elements) + " ";
-        err += "Variables=[ " + Convertor::to_string(cdf.var_names()) + "]";
+        err += "Variables=[ " + to_string(cdf.var_names()) + "]";
         strcpy(error_message, err.c_str());
         return 1;
     }

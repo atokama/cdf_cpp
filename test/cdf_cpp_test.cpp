@@ -1,5 +1,5 @@
-#include <cdf_cpp/convertor.h>
 #include <cdf_cpp/cdf_cpp.h>
+#include <cdf_cpp/cdf_file.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -15,41 +15,32 @@
 namespace cdf_cpp {
 
     namespace fs = std::experimental::filesystem;
-
+    using fs::path;
     using std::cout;
     using std::endl;
-    using std::string;
     using std::ifstream;
-    using fs::path;
-
-    using std::string;
     using std::ofstream;
-    using std::experimental::filesystem::path;
 
     class TXTFile {
     public:
-        explicit TXTFile(const path &filename, const string &separator, std::streamsize precision);
-
+        explicit TXTFile(
+                const path &filename,
+                const string &separator,
+                std::streamsize precision);
         ~TXTFile();
 
-        void open();
-
-        void close();
-
         void write_header();
-
         void write_line(double time, double Hvar, double Evar, double Zvar);
 
     private:
+        void close();
+        void open();
         void write_element(double element, const string &suffix);
-
         const path _filename;
         const string _separator;
         std::streamsize _precision;
         ofstream _output;
     };
-
-    using std::endl;
 
     TXTFile::TXTFile(const path &filename,
                      const string &separator,
@@ -70,9 +61,7 @@ namespace cdf_cpp {
                            + _filename.string()};
     }
 
-    void TXTFile::close() {
-        _output.close();
-    }
+    void TXTFile::close() { _output.close(); }
 
     void TXTFile::write_header() {
         _output << "time" << _separator
@@ -91,7 +80,6 @@ namespace cdf_cpp {
             _output << std::fixed << element;
             _output.precision(temp);
         }
-
         _output << suffix;
     }
 
@@ -133,7 +121,6 @@ namespace cdf_cpp {
         txt.write_header();
         for (int i = 0; i != length; ++i)
             txt.write_line(*t++, *hx++, *hy++, *hz++);
-        txt.close();
     }
 
     bool nasa_tester(int len,
@@ -291,7 +278,8 @@ namespace cdf_cpp {
 
                                 // for each file in subdir
                 for (auto &entry : fs::directory_iterator{subdir.path()})
-                    if (fs::is_regular_file(entry) && entry.path().extension() == ".cdf") {
+                    if (fs::is_regular_file(entry)
+                        && entry.path().extension() == ".cdf") {
                         auto txt = entry.path();
                         txt.replace_extension(".txt");
                         const auto temp = output_dir / txt.filename();
