@@ -11,17 +11,15 @@ namespace cdf_cpp {
 
         long  varNum, numDims, recVary,
               dimIndices[CDF_MAX_DIMS], dimCounts[CDF_MAX_DIMS],
-              dimInterval[CDF_MAX_DIMS], dimSizes[CDF_MAX_DIMS], dimVarys[CDF_MAX_DIMS];
+              dimInterval[CDF_MAX_DIMS], dimSizes[CDF_MAX_DIMS],
+                dimVarys[CDF_MAX_DIMS];
         long  datatype, numElements, numRecs, arraySize;
         long  ilen;
 
         auto REQUIRE = [](bool b) -> void {
-            if (!b) throw CDFError{"REQUIRE"};
+            if (!b) throw CDFError{"Error while creating variable"};
         };
 
-        /******************************************************************************
-        * Read data for 'Image' zVariable (10 x 20 array).
-        ******************************************************************************/
         dimIndices[0] = 0;
         dimIndices[1] = 0;
         dimInterval[0] = 1;

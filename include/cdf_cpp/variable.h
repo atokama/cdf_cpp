@@ -16,19 +16,6 @@ namespace cdf_cpp {
         Variable(CDFid id, long varnum);
         ~Variable();
 
-        /*
-        template<typename T>
-        T element(long row, long column) const {
-            if (row >= num_elements)
-                throw CDFError{"row >= num_elements"};
-            T result;
-            long indices[] = {column};
-            check_status(CDFgetzVarData(_id, _varnum, row, indices, &result),
-                         "get var data");
-            return result;
-        }
-        */
-
         long num_columns() const { return _num_columns; }
 
         template<typename T>

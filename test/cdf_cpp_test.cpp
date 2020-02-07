@@ -22,6 +22,88 @@ namespace cdf_cpp {
     using std::ifstream;
     using fs::path;
 
+    using std::string;
+    using std::ofstream;
+    using std::experimental::filesystem::path;
+
+    class TXTFile {
+    public:
+        explicit TXTFile(const path &filename, const string &separator, std::streamsize precision);
+
+        ~TXTFile();
+
+        void open();
+
+        void close();
+
+        void write_header();
+
+        void write_line(double time, double Hvar, double Evar, double Zvar);
+
+    private:
+        void write_element(double element, const string &suffix);
+
+        const path _filename;
+        const string _separator;
+        std::streamsize _precision;
+        ofstream _output;
+    };
+
+    using std::endl;
+
+    TXTFile::TXTFile(const path &filename,
+                     const string &separator,
+                     std::streamsize precision)
+        : _filename{filename}, _separator{separator},
+          _precision{precision}, _output{} {
+        open();
+    }
+
+    TXTFile::~TXTFile() {
+        if (_output.is_open()) close();
+    }
+
+    void TXTFile::open() {
+        _output.open(_filename.string(), ofstream::out);
+        if (!_output.is_open())
+            throw CDFError{"fail to create .txt file "
+                           + _filename.string()};
+    }
+
+    void TXTFile::close() {
+        _output.close();
+    }
+
+    void TXTFile::write_header() {
+        _output << "time" << _separator
+                << "Hvar" << _separator
+                << "Evar" << _separator
+                << "Zvar" << endl;
+    }
+
+    void TXTFile::write_element(double element,
+                                const string &suffix) {
+        if (std::isnan(element))
+            _output << "nan";
+        else {
+            const auto temp = _output.precision();
+            _output.precision(_precision);
+            _output << std::fixed << element;
+            _output.precision(temp);
+        }
+
+        _output << suffix;
+    }
+
+    void TXTFile::write_line(
+            double time,
+            double Hvar, double Evar, double Zvar) {
+        write_element(time, _separator);
+        write_element(Hvar, _separator);
+        write_element(Evar, _separator);
+        write_element(Zvar, "\n");
+    }
+
     template<typename InputIterator1, typename InputIterator2>
     bool range_equal(InputIterator1 first1, InputIterator1 last1,
                      InputIterator2 first2, InputIterator2 last2) {
@@ -51,6 +133,7 @@ namespace cdf_cpp {
         txt.write_header();
         for (int i = 0; i != length; ++i)
             txt.write_line(*t++, *hx++, *hy++, *hz++);
+        txt.close();
     }
 
     bool nasa_tester(int len,

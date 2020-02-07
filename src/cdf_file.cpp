@@ -3,17 +3,21 @@
 namespace cdf_cpp {
 
     CDFFile::CDFFile(const path &filename) : _id{nullptr} {
-        check_status(CDFopenCDF(filename.string().c_str(), &_id), "fail to open CDF file");
+        check_status(CDFopenCDF(filename.string().c_str(), &_id),
+                     "fail to open CDF file");
 
         long numzVars;
-        check_status(CDFgetNumzVars(_id, &numzVars), "fail to get number of zVariables");
+        check_status(CDFgetNumzVars(_id, &numzVars),
+                     "fail to get number of zVariables");
 
         for (long i = 0L; i != numzVars; ++i) {
             char var_name[CDF_VAR_NAME_LEN256 + 1];
-            check_status(CDFgetzVarName(_id, i, var_name), "fail to get name of zVariable");
+            check_status(CDFgetzVarName(_id, i, var_name),
+                         "fail to get name of zVariable");
 
             long var_num = CDFgetVarNum(_id, var_name);
-            if (var_num < CDF_WARN) throw CDFError{"fail to get variable number"};
+            if (var_num < CDF_WARN)
+                throw CDFError{"fail to get variable number"};
 
             auto it = variables.insert(
                 {string{var_name},

@@ -3,25 +3,27 @@
 
 using namespace cdf_cpp;
 
-char *make_error_message(const std::string &text) {
-    auto ret = static_cast<char *>(
-            malloc(sizeof(char) * text.size()));
-    if (ret) strcpy(ret, text.c_str());
-    return ret;
+int nasa(char *error_message, const char *cdf_filename, int length,
+        double *t, double *hx, double *hy, double *hz);
+
+int nasa_s(
+        char *error_message,const char *cdf_filename,
+        double *t, double *hx, double *hy, double *hz) {
+    return nasa(error_message, cdf_filename, NASA_S_NUM, t, hx, hy, hz);
 }
 
-/*
-const char *convertor(const char *source, const char *dest) try {
-    Convertor::convert(source, dest);
-    return nullptr;
-} catch (const CDFError &e) {
-    return make_error_message(e.what());
-} catch (const std::exception &e) {
-    return make_error_message(e.what());
-} catch (...) {
-    return make_error_message({"Unknown error"});
+int nasa_20s(
+        char *error_message,const char *cdf_filename,
+        double *t, double *hx, double *hy, double *hz) {
+    return nasa(error_message,cdf_filename,  NASA_20S_NUM, t, hx, hy, hz);
 }
-*/
+
+int nasa_m(
+        char *error_message,const char *cdf_filename,
+        double *t, double *hx, double *hy, double *hz) {
+    return nasa(error_message, cdf_filename, NASA_M_NUM, t, hx, hy, hz);
+}
+
 
 bool nasa_check(CDFFile& cdf, vector<string> vars, int nasa_secs) {
  return Convertor::is_subset(cdf.var_names(), vars)
